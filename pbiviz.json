@@ -1,0 +1,22 @@
+{
+  "visual": {
+    "name": "testchart",
+    "displayName": "testchart",
+    "guid": "testchart7ABF92F98E1C4872A42B1383A838A82A",
+    "visualClassName": "Visual",
+    "version": "1.0.0",
+    "description": "",
+    "supportUrl": "",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "2.6.0",
+  "author": { "name": "", "email": "" },
+  "assets": { "icon": "assets/icon.png" },
+  "externalJS": [
+      
+  ],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": null,
+  "stringResources": []
+}
