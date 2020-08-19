@@ -40,24 +40,38 @@ import * as Highcharts from 'highcharts';
 import * as Exporting from 'highcharts/modules/exporting';
 
 import { VisualSettings } from "./settings";
+
+interface DataPoint {
+    category: string;
+    value: number;
+};
+
+interface ViewModel {
+    dataPoints: DataPoint[];
+    maxValue: number;
+};
+
 export class Visual implements IVisual {
     private target: HTMLElement;
     private settings: VisualSettings;
 
     constructor(options: VisualConstructorOptions) {
-        console.log('Visual constructor', options);
+        // console.log('Visual constructor', options);
         this.target = options.element;
     }
 
     public update(options: VisualUpdateOptions) {
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-        console.log('Visual update', options);
+        // console.log('Visual update', options);
         var optionMain=this.target;
 
+        let viewModel = this.getViewModel(options)
+
+        
         /**
          * Code to add highcharts
          */
-        
+        console.log("datapoint recie")
         Highcharts.chart(optionMain.id, {
 
             title: {
@@ -66,6 +80,9 @@ export class Visual implements IVisual {
         
             subtitle: {
                 text: 'Source: thesolarfoundation.com'
+            },
+            xAxis: {
+                categories: viewModel.dataPoints.map(d => d.category)
             },
         
             yAxis: {
@@ -80,33 +97,17 @@ export class Visual implements IVisual {
             },
         
             plotOptions: {
-                series: {
-                    label: {
-                        connectorAllowed: false
+                line: {
+                    dataLabels: {
+                        enabled: true
                     },
-                    pointStart: 2010
+                    enableMouseTracking: false
                 }
             },
         
             series: [{
                 name: 'Installation',
-                data: [43934, 52503, 57177, 69658, 97031, 119931, 137133, 154175],
-                type: undefined
-            }, {
-                name: 'Manufacturing',
-                data: [24916, 24064, 29742, 29851, 32490, 30282, 38121, 40434],
-                type: undefined
-            }, {
-                name: 'Sales & Distribution',
-                data: [11744, 17722, 16005, 19771, 20185, 24377, 32147, 39387],
-                type: undefined
-            }, {
-                name: 'Project Development',
-                data: [null, null, 7988, 12169, 15112, 22452, 34400, 34227],
-                type: undefined
-            }, {
-                name: 'Other',
-                data: [12908, 5948, 8105, 11248, 8989, 11816, 18274, 18111],
+                data: viewModel.dataPoints.map(d => d.value),
                 type: undefined
             }],
         
@@ -127,6 +128,41 @@ export class Visual implements IVisual {
         
         });
 
+
+
+    }
+    // private interface ViewModel{
+
+    // }
+    private getViewModel(options:VisualUpdateOptions): ViewModel {
+        
+        let dv = options.dataViews;
+
+        let viewModel: ViewModel = {
+            dataPoints :[],
+            maxValue:0
+        };
+        if(!dv
+            || !dv[0]
+            || !dv[0].categorical
+            || !dv[0].categorical.categories
+            || !dv[0].categorical.categories[0].source
+            || !dv[0].categorical.values){
+                return viewModel;
+
+            }
+            
+        let view  = dv[0].categorical;
+        let categories = view.categories[0];
+        let values = view.values[0];
+        
+        for (let i=0, len = Math.max(categories.values.length , values.values.length); i<len; i++){
+            viewModel.dataPoints.push({
+                category: <string>categories.values[i],
+                value: <number>values.values[i]
+            });
+        } 
+        return viewModel ;
 
 
     }
